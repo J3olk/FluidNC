@@ -3,16 +3,16 @@ import filecmp, tempfile, shutil, os
 
 # Thank you https://docs.platformio.org/en/latest/projectconf/section_env_build.html !
 
-gitFail = False
+gitFail = True
 try:
     subprocess.check_call(["git", "status"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 except:
     gitFail = True
 
 if gitFail:
-    tag = "v3.0.x"
-    rev = " (noGit)"
-    url = " (noGit)"
+    tag = "v3.7.17"
+    rev = " Electropribor"
+    url = " v6"
 else:
     try:
         tag = (
@@ -21,7 +21,7 @@ else:
             .decode("utf-8")
         )
     except:
-        tag = "v3.0.x"
+        tag = "v3.7.17"
 
     # Check to see if the head commit exactly matches a tag.
     # If so, the revision is "release", otherwise it is BRANCH-COMMIT
