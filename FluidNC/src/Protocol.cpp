@@ -19,6 +19,8 @@
 #include "Settings.h"       // settings_execute_startup
 #include "Machine/LimitPin.h"
 
+#include "InputFile.h"
+
 volatile ExecAlarm lastAlarm;  // The most recent alarm code
 
 const std::map<ExecAlarm, const char*> AlarmNames = {
@@ -1000,11 +1002,16 @@ static void protocol_do_limit(void* arg) {
     log_debug("Limit switch tripped for " << config->_axes->axisName(limit->_axis) << " motor " << limit->_motorNum);
 }
 static void protocol_do_fault_pin(void* arg) {
-    if (state_is(State::Cycle) || state_is(State::Jog) || state_is(State::Idle) || state_is(State::Hold) || state_is(State::SafetyDoor)) {
-        mc_critical(ExecAlarm::HardStop);  // Initiate system kill.
-    }
+    InputFile::_progress = "";
+    mc_critical(ExecAlarm::HardStop);
     ControlPin* pin = (ControlPin*)arg;
-    log_info("Stopped by " << pin->legend());
+    log_info("Stopped by E-STOP button");
+
+    // if (state_is(State::Cycle) || state_is(State::Jog) || state_is(State::Idle) || state_is(State::Hold) || state_is(State::SafetyDoor)) {
+    //     mc_critical(ExecAlarm::HardStop);  // Initiate system kill.
+    // }
+    // ControlPin* pin = (ControlPin*)arg;
+    // log_info("Stopped by " << pin->legend());
 }
 void protocol_do_rt_reset() {
     if (state_is(State::Homing)) {
