@@ -31,6 +31,8 @@
 #include <map>
 #include <filesystem>
 
+#include "PinMapper.h"
+
 // WG Readable and writable as guest
 // WU Readable and writable as user and admin
 // WA Readable as user and admin, writable as admin
@@ -840,6 +842,19 @@ static Error showHeap(const char* value, WebUI::AuthenticationLevel auth_level, 
     return Error::Ok;
 }
 
+//============================================================================================================//
+static Error ChangeLight(const char* value, WebUI::AuthenticationLevel auth_level, Channel& out) {
+    if (digitalRead(27) == 0) {         // Было выкл
+        digitalWrite(27, 1);
+        log_info("Light: On");
+    } else {                            // Было вкл
+        digitalWrite(27, 0);
+        log_info("Light: Off");
+    }
+    return Error::Ok;
+}
+//============================================================================================================//
+
 // Commands use the same syntax as Settings, but instead of setting or
 // displaying a persistent value, a command causes some action to occur.
 // That action could be anything, from displaying a run-time parameter
@@ -847,6 +862,7 @@ static Error showHeap(const char* value, WebUI::AuthenticationLevel auth_level, 
 // for decoding its own value string, if it needs one.
 void make_user_commands() {
     new UserCommand("GD", "GPIO/Dump", showGPIOs, anyState);
+    new UserCommand("LT", "Light", ChangeLight, anyState);                      // Подсветка рабочей области
 
     new UserCommand("CI", "Channel/Info", showChannelInfo, anyState);
     new UserCommand("XR", "Xmodem/Receive", xmodem_receive, allowConfigStates);
