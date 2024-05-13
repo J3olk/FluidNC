@@ -41,6 +41,8 @@
 #include <sstream>
 #include <iomanip>
 
+#include "PinMapper.h"
+
 #ifdef DEBUG_REPORT_HEAP
 EspClass esp;
 #endif
@@ -527,7 +529,58 @@ void report_realtime_debug() {}
 // specific needs, but the desired real-time data report must be as short as possible. This is
 // requires as it minimizes the computational overhead to keep running smoothly,
 // especially during g-code programs with fast, short line segments and high frequency reports (5-20Hz).
+
+//======================================================================================================//
+//======================================================================================================//
+void OnlyRedDiodOn() {
+  digitalWrite(14, 1);   // Красный 14
+  digitalWrite(13, 0);   // Зеленый 13
+}
+
+void OnlyGreenDiodOn() {
+  digitalWrite(14, 0);   // Красный 14
+  digitalWrite(13, 1);   // Зеленый 13
+}
+
+void report_update()
+{
+    if (limits_get_state()) {
+		OnlyRedDiodOn();
+	} else {
+	    switch (sys.state) {
+            case State::Idle: OnlyGreenDiodOn();
+                break;
+            case State::Jog: OnlyGreenDiodOn();
+                break;
+            case State::Cycle: OnlyGreenDiodOn();
+                break;
+            case State::CheckMode: OnlyGreenDiodOn();
+                break;
+    //====================================================//
+            case State::Alarm: OnlyRedDiodOn();
+                break;
+            case State::Critical: OnlyRedDiodOn();
+                break;
+            case State::Homing: OnlyRedDiodOn();
+                break;		
+            case State::ConfigAlarm: OnlyRedDiodOn();
+                break;
+            case State::Sleep: OnlyRedDiodOn();
+                break;
+            case State::SafetyDoor: OnlyRedDiodOn();
+                break;	
+            case State::Hold: OnlyRedDiodOn();
+                break;
+	  	}
+   }
+}
+//======================================================================================================//
+//======================================================================================================//
+
 void report_realtime_status(Channel& channel) {
+//======================================================================================================//
+    report_update();
+//======================================================================================================//
     LogStream msg(channel, "<");
     msg << state_name();
 
