@@ -135,6 +135,9 @@ namespace WebUI {
 
         //need to be there even no authentication to say to UI no authentication
         _webserver->on("/login", HTTP_ANY, handle_login);
+//======================================================================================================//
+        _webserver->on("/loginAdmin", HTTP_ANY, handle_loginAdmin);
+//======================================================================================================//
 
         //web commands
         _webserver->on("/command", HTTP_ANY, handle_web_command);
@@ -494,6 +497,24 @@ namespace WebUI {
         }
         _webserver->send(500, "text/plain", "Invalid command");
     }
+
+//======================================================================================================//
+//======================================================================================================//
+    void Web_Server::handle_loginAdmin() {
+        std::string AdminPass = "12345678";
+        if (_webserver->hasArg("PASSWORD")) {
+            std::string ReadPass = _webserver->arg("PASSWORD").c_str();
+            if (ReadPass == AdminPass) {
+                _webserver->send(200, "text/plain", "login: ok");
+                log_debug("login: ok");
+            } else {
+                _webserver->send(200, "text/plain", "login: false");
+                log_debug("login: false");
+            }
+        }
+    }
+//======================================================================================================//
+//======================================================================================================//
 
     //login status check
     void Web_Server::handle_login() {
