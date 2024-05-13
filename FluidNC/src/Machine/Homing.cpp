@@ -340,6 +340,14 @@ namespace Machine {
 
         config->_stepping->endLowLatency();
 
+//========================================================================================
+//========================================================================================
+        Homing::set_axis_homed(3);
+        Homing::set_axis_homed(4);
+        Homing::set_axis_homed(5);
+//========================================================================================
+//========================================================================================
+
         if (!sys.abort) {
             set_state(unhomed_axes() ? State::Alarm : State::Idle);
             Stepper::go_idle();  // Set steppers to the settings idle state before returning.
