@@ -42,6 +42,7 @@
 #include <iomanip>
 
 #include "PinMapper.h"
+#include "Machine/UserOutputs.h"
 
 #ifdef DEBUG_REPORT_HEAP
 EspClass esp;
@@ -532,44 +533,40 @@ void report_realtime_debug() {}
 
 //======================================================================================================//
 //======================================================================================================//
-void OnlyRedDiodOn() {
-  digitalWrite(14, 1);   // Красный 14
-  digitalWrite(13, 0);   // Зеленый 13
-}
-
-void OnlyGreenDiodOn() {
-  digitalWrite(14, 0);   // Красный 14
-  digitalWrite(13, 1);   // Зеленый 13
+void SetColor (float red, float  green, float blue) {
+    config->_userOutputs->setAnalogPercent(int(0), red);       // Красный (14 пин)
+    config->_userOutputs->setAnalogPercent(int(1), green);     // Зеленый (13 пин)
+    config->_userOutputs->setAnalogPercent(int(2), blue);      // Синий (16 пин)
 }
 
 void report_update()
 {
     if (limits_get_state()) {
-		OnlyRedDiodOn();
+		SetColor(100, 0, 0);
 	} else {
 	    switch (sys.state) {
-            case State::Idle: OnlyGreenDiodOn();
+            case State::Idle: SetColor(0, 100, 0);
                 break;
-            case State::Jog: OnlyGreenDiodOn();
+            case State::Jog: SetColor(0, 100, 0);
                 break;
-            case State::Cycle: OnlyGreenDiodOn();
+            case State::Cycle: SetColor(0, 100, 0);
                 break;
-            case State::CheckMode: OnlyGreenDiodOn();
+            case State::CheckMode: SetColor(0, 100, 0);
                 break;
     //====================================================//
-            case State::Alarm: OnlyRedDiodOn();
+            case State::Alarm: SetColor(100, 0, 0);
                 break;
-            case State::Critical: OnlyRedDiodOn();
+            case State::Critical: SetColor(100, 0, 0);
                 break;
-            case State::Homing: OnlyRedDiodOn();
+            case State::Homing: SetColor(100, 0, 0);
                 break;		
-            case State::ConfigAlarm: OnlyRedDiodOn();
+            case State::ConfigAlarm: SetColor(100, 0, 0);
                 break;
-            case State::Sleep: OnlyRedDiodOn();
+            case State::Sleep: SetColor(100, 0, 0);
                 break;
-            case State::SafetyDoor: OnlyRedDiodOn();
+            case State::SafetyDoor: SetColor(100, 0, 0);
                 break;	
-            case State::Hold: OnlyRedDiodOn();
+            case State::Hold: SetColor(100, 0, 0);
                 break;
 	  	}
    }
