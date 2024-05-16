@@ -36,6 +36,8 @@
 #    include "src/HashFS.h"
 #    include <list>
 
+#    include "src/Machine/Homing.h"
+
 namespace WebUI {
     const byte DNS_PORT = 53;
     DNSServer  dnsServer;
@@ -137,6 +139,7 @@ namespace WebUI {
         _webserver->on("/login", HTTP_ANY, handle_login);
 //======================================================================================================//
         _webserver->on("/loginAdmin", HTTP_ANY, handle_loginAdmin);
+        _webserver->on("/homedAxis", HTTP_ANY, handle_homedAxis);
 //======================================================================================================//
 
         //web commands
@@ -512,6 +515,21 @@ namespace WebUI {
                 log_debug("login: false");
             }
         }
+    }
+
+    void Web_Server::handle_homedAxis() {
+        std::string homedAxes = "";
+        if (Homing::axis_is_homed(0)) {
+            homedAxes += 'X';
+        }
+        if (Homing::axis_is_homed(1)) {
+            homedAxes += 'Y';
+        }
+        if (Homing::axis_is_homed(2)) {
+            homedAxes += 'Z';
+        }
+        _webserver->send(200, "text/plain", homedAxes.c_str());
+        log_debug("Homed: " << homedAxes);
     }
 //======================================================================================================//
 //======================================================================================================//
