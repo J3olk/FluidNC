@@ -1086,7 +1086,8 @@ static void protocol_do_limit(void* arg) {
     log_debug("Limit switch tripped for " << config->_axes->axisName(limit->_axis) << " motor " << limit->_motorNum);
 }
 static void protocol_do_fault_pin(void* arg) {
-    InputFile::_progress = "";
+    Job::channel()->_progress = "";
+    // InputFile::_progress = "";
     mc_critical(ExecAlarm::HardStop);
     ControlPin* pin = (ControlPin*)arg;
     log_info("Stopped by E-STOP button");
