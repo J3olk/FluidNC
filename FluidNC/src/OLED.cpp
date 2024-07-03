@@ -2,6 +2,8 @@
 
 #include "Machine/MachineConfig.h"
 
+#include "fontsRus.h"
+
 void OLED::show(Layout& layout, const char* msg) {
     if (_width < layout._width_required) {
         return;
@@ -11,16 +13,17 @@ void OLED::show(Layout& layout, const char* msg) {
     _oled->drawString(layout._x, layout._y, msg);
 }
 
-OLED::Layout OLED::bannerLayout128  = { 0, 0, 0, ArialMT_Plain_24, TEXT_ALIGN_CENTER };
+OLED::Layout OLED::bannerLayout128  = { 63, 18, 128, ArialRus_Plain_24, TEXT_ALIGN_CENTER };
 OLED::Layout OLED::bannerLayout64   = { 0, 0, 0, ArialMT_Plain_16, TEXT_ALIGN_CENTER };
-OLED::Layout OLED::stateLayout      = { 0, 0, 0, ArialMT_Plain_16, TEXT_ALIGN_LEFT };
+OLED::Layout OLED::Connect          = { 0, 0, 0, ArialRus_Plain_16, TEXT_ALIGN_LEFT };
+OLED::Layout OLED::stateLayout      = { 0, 0, 0, ArialRus_Plain_16, TEXT_ALIGN_LEFT };
 OLED::Layout OLED::tickerLayout     = { 63, 0, 128, ArialMT_Plain_10, TEXT_ALIGN_CENTER };
 OLED::Layout OLED::filenameLayout   = { 63, 13, 128, ArialMT_Plain_10, TEXT_ALIGN_CENTER };
 OLED::Layout OLED::percentLayout128 = { 128, 0, 128, ArialMT_Plain_16, TEXT_ALIGN_RIGHT };
 OLED::Layout OLED::percentLayout64  = { 64, 0, 64, ArialMT_Plain_16, TEXT_ALIGN_RIGHT };
-OLED::Layout OLED::limitLabelLayout = { 80, 14, 128, ArialMT_Plain_10, TEXT_ALIGN_LEFT };
-OLED::Layout OLED::posLabelLayout   = { 60, 14, 128, ArialMT_Plain_10, TEXT_ALIGN_RIGHT };
-OLED::Layout OLED::radioAddrLayout  = { 50, 0, 128, ArialMT_Plain_10, TEXT_ALIGN_LEFT };
+OLED::Layout OLED::limitLabelLayout = { 80, 14, 128, ArialRus_Plain_10, TEXT_ALIGN_LEFT };
+OLED::Layout OLED::posLabelLayout   = { 60, 14, 128, ArialRus_Plain_10, TEXT_ALIGN_RIGHT };
+OLED::Layout OLED::radioAddrLayout  = { 50, 2, 128, ArialMT_Plain_10, TEXT_ALIGN_LEFT };
 
 void OLED::afterParse() {
     if (!config->_i2c[_i2c_num]) {
@@ -63,6 +66,37 @@ void OLED::afterParse() {
     }
 }
 
+// Русификация по гайду
+// https://espsmart.ru/blog/8-russkij-jazyk-na-ssd1306-oled-displee-c-esp-8266.html
+char FontUtf8Rus(const byte ch) {
+    static uint8_t LASTCHAR;
+
+    if ((LASTCHAR == 0) && (ch < 0xC0)) {
+      return ch;
+    }
+
+    if (LASTCHAR == 0) {
+        LASTCHAR = ch;
+        return 0;
+    }
+
+    uint8_t last = LASTCHAR;
+    LASTCHAR = 0;
+    
+    switch (last) {
+        case 0xD0:
+            if (ch == 0x81) return 0xA8;
+            if (ch >= 0x90 && ch <= 0xBF) return ch + 0x30;
+            break;
+        case 0xD1:
+            if (ch == 0x91) return 0xB8;
+            if (ch >= 0x80 && ch <= 0x8F) return ch + 0x70;
+            break;
+    }
+
+    return (uint8_t) 0;
+}
+
 void OLED::init() {
     if (_error) {
         return;
@@ -70,6 +104,8 @@ void OLED::init() {
     log_info("OLED I2C address: " << to_hex(_address) << " width: " << _width << " height: " << _height);
     _oled = new SSD1306_I2C(_address, _geometry, config->_i2c[_i2c_num], 400000);
     _oled->init();
+
+    _oled->setFontTableLookupFunction(FontUtf8Rus);
 
     if (_flip) {
         _oled->flipScreenVertically();
@@ -81,9 +117,11 @@ void OLED::init() {
 
     _oled->clear();
 
-    show((_width == 128) ? bannerLayout128 : bannerLayout64, "FluidNC");
+    show((_width == 128) ? bannerLayout128 : bannerLayout64, "МГФН-02");
 
     _oled->display();
+
+    vTaskDelay(3000);
 
     allChannels.registration(this);
     setReportInterval(_report_interval_ms);
@@ -95,7 +133,7 @@ Channel* OLED::pollLine(char* line) {
 }
 
 void OLED::show_state() {
-    show(stateLayout, _state);
+    show(stateLayout, _stateRus);
 }
 
 void OLED::show_limits(bool probe, const bool* limits) {
@@ -133,7 +171,7 @@ void OLED::show_file() {
 
         wrapped_draw_string(14, _filename, ArialMT_Plain_16);
 
-        _oled->drawProgressBar(0, 45, 120, 10, pct);
+        _oled->drawProgressBar(0, 50, 120, 10, pct);
     } else {
         show(percentLayout64, std::to_string(pct) + '%');
     }
@@ -150,8 +188,8 @@ void OLED::show_dro(const float* axes, bool isMpos, bool* limits) {
     auto n_axis = config->_axes->_numberAxis;
     char axisVal[20];
 
-    show(limitLabelLayout, "L");
-    show(posLabelLayout, isMpos ? "M Pos" : "W Pos");
+    show(limitLabelLayout, "П");
+    show(posLabelLayout, isMpos ? "М Поз" : "Р Поз");
 
     _oled->setFont(ArialMT_Plain_10);
     uint8_t oled_y_pos;
@@ -182,8 +220,9 @@ void OLED::show_radio_info() {
     }
     if (_width == 128) {
         if (_state == "Alarm") {
-            wrapped_draw_string(18, _radio_info, ArialMT_Plain_10);
-            wrapped_draw_string(30, _radio_addr, ArialMT_Plain_10);
+            auto fh = font_height(ArialMT_Plain_16);
+            wrapped_draw_string(fh, _radio_info, ArialMT_Plain_16);
+            wrapped_draw_string(fh * 2, _radio_addr, ArialMT_Plain_16);
         } else if (_state != "Run") {
             show(radioAddrLayout, _radio_addr);
         }
@@ -232,6 +271,36 @@ void OLED::parse_status_report() {
     size_t pos     = 0;
     auto   nextpos = _report.find_first_of("|", pos);
     _state         = _report.substr(pos + 1, nextpos - pos - 1);
+    /*
+        Не больше 6 символов
+        Idle        -   Готов
+        Run         -   УП
+        Hold:0      -   Пауза
+        Hold:1      -   Пауза
+        Jog         -   Ручн
+        Home        -   База
+        Alarm       -   Вним
+        Check       -   Пров
+        Door:3      -   Дверь
+        Door:2      -   Дверь
+        Door:1      -   Дверь
+        Door:0      -   Дверь
+        Sleep       -   Сон
+    */
+   if (strcmp(_state.c_str(), "Idle") == 0) { _stateRus = "Готов"; }
+   else if (strcmp(_state.c_str(), "Run") == 0) { _stateRus = "УП"; }
+   else if (strcmp(_state.c_str(), "Hold:0") == 0) { _stateRus = "Пауза"; }
+   else if (strcmp(_state.c_str(), "Hold:1") == 0) { _stateRus = "Пауза"; }
+   else if (strcmp(_state.c_str(), "Jog") == 0) { _stateRus = "Ручное"; }
+   else if (strcmp(_state.c_str(), "Home") == 0) { _stateRus = "База"; }
+   else if (strcmp(_state.c_str(), "Alarm") == 0) { _stateRus = "Авария"; }
+   else if (strcmp(_state.c_str(), "Check") == 0) { _stateRus = "Провер"; }
+   else if (strcmp(_state.c_str(), "Door:0") == 0) { _stateRus = "Дверь"; }
+   else if (strcmp(_state.c_str(), "Door:1") == 0) { _stateRus = "Дверь"; }
+   else if (strcmp(_state.c_str(), "Door:2") == 0) { _stateRus = "Дверь"; }
+   else if (strcmp(_state.c_str(), "Door:3") == 0) { _stateRus = "Дверь"; }
+   else if (strcmp(_state.c_str(), "Sleep") == 0) { _stateRus = "Сон"; }
+   else { _stateRus = "???"; }
 
     bool probe              = false;
     bool limits[MAX_N_AXIS] = { false };
@@ -392,11 +461,18 @@ void OLED::parse_gcode_report() {
 // [MSG:INFO: Connecting to STA:SSID foo]
 void OLED::parse_STA() {
     size_t start = strlen("[MSG:INFO: Connecting to STA SSID:");
+    // Если нужно выводить STA (AP выводится и так)
+    // Выглядит загромождённо и не нужно
+    // _radio_info = "STA: ";
+    // _radio_info  += _report.substr(start, _report.size() - start - 1);
     _radio_info  = _report.substr(start, _report.size() - start - 1);
 
     _oled->clear();
-    auto fh = font_height(ArialMT_Plain_10);
-    wrapped_draw_string(0, _radio_info, ArialMT_Plain_10);
+    auto fh = font_height(ArialMT_Plain_16);
+
+    show(Connect, "Подключение к:");
+    // wrapped_draw_string(0, "Подключение к:", ArialRus_Plain_16);
+    wrapped_draw_string(fh, _radio_info, ArialMT_Plain_16);
     _oled->display();
 }
 
@@ -406,9 +482,9 @@ void OLED::parse_IP() {
     _radio_addr  = _report.substr(start, _report.size() - start - 1);
 
     _oled->clear();
-    auto fh = font_height(ArialMT_Plain_10);
-    wrapped_draw_string(0, _radio_info, ArialMT_Plain_10);
-    wrapped_draw_string(fh * 2, _radio_addr, ArialMT_Plain_10);
+    auto fh = font_height(ArialMT_Plain_16);
+    wrapped_draw_string(fh, _radio_info, ArialMT_Plain_16);
+    wrapped_draw_string(fh * 2, _radio_addr, ArialMT_Plain_16);
     _oled->display();
     delay_msec(_radio_delay);
 }
@@ -425,9 +501,9 @@ void OLED::parse_AP() {
     _radio_addr = _report.substr(ip_start, ip_end - ip_start);
 
     _oled->clear();
-    auto fh = font_height(ArialMT_Plain_10);
-    wrapped_draw_string(0, _radio_info, ArialMT_Plain_10);
-    wrapped_draw_string(fh * 2, _radio_addr, ArialMT_Plain_10);
+    auto fh = font_height(ArialMT_Plain_16);
+    wrapped_draw_string(fh, _radio_info, ArialMT_Plain_16);
+    wrapped_draw_string(fh * 2, _radio_addr, ArialMT_Plain_16);
     _oled->display();
     delay_msec(_radio_delay);
 }
@@ -439,7 +515,7 @@ void OLED::parse_BT() {
     _radio_info += btname.c_str();
 
     _oled->clear();
-    wrapped_draw_string(0, _radio_info, ArialMT_Plain_10);
+    wrapped_draw_string(0, _radio_info, ArialMT_Plain_16);
     _oled->display();
     delay_msec(_radio_delay);
 }
@@ -484,7 +560,7 @@ void OLED::parse_report() {
         return;
     }
     if (_report.rfind("[MSG:INFO: WebUI: Request from ", 0) == 0) {
-        parse_WebUI();
+        //parse_WebUI();
         return;
     }
 }
