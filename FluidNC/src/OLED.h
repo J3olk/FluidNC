@@ -20,6 +20,7 @@ public:
     };
     static Layout bannerLayout128;
     static Layout bannerLayout64;
+    static Layout Connect;
     static Layout stateLayout;
     static Layout tickerLayout;
     static Layout filenameLayout;
@@ -36,6 +37,7 @@ private:
     std::string _radio_addr;
 
     std::string _state;
+    std::string _stateRus;
     std::string _filename;
 
     float       _percent;
