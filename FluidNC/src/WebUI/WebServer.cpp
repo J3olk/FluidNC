@@ -591,8 +591,9 @@ unsigned int crc32b(const char *message) {
                 log_info("Check = " << CheckCRC);
                 _webserver->send(200, "text/plain", "Key false");
             }
+        } else {
+            _webserver->send(200, "text/plain", "Need arguments");
         }
-        _webserver->send(200, "text/plain", "need arguments");
     }
 //======================================================================================================//
 //======================================================================================================//
