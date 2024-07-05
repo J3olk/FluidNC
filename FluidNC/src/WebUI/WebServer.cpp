@@ -6,6 +6,8 @@
 #include "../Serial.h"    // is_realtime_command()
 #include "../Settings.h"  // settings_execute_line()
 
+#include <esp32/rom/crc.h>
+
 #ifdef ENABLE_WIFI
 
 #    include "WifiServices.h"
@@ -142,6 +144,7 @@ namespace WebUI {
 //======================================================================================================//
         _webserver->on("/loginAdmin", HTTP_ANY, handle_loginAdmin);
         _webserver->on("/homedAxis", HTTP_ANY, handle_homedAxis);
+        _webserver->on("/authorization", HTTP_ANY, handle_authorization);
 //======================================================================================================//
 
         //web commands
@@ -536,6 +539,60 @@ namespace WebUI {
         }
         _webserver->send(200, "text/plain", homedAxes.c_str());
         log_debug("Homed: " << homedAxes);
+    }
+
+// https://web.archive.org/web/20190108202303/http://www.hackersdelight.org/hdcodetxt/crc.c.txt
+/* This is the basic CRC-32 calculation with some optimization but no
+table lookup. The the byte reversal is avoided by shifting the crc reg
+right instead of left and by using a reversed 32-bit word to represent
+the polynomial.
+   When compiled to Cyclops with GCC, this function executes in 8 + 72n
+instructions, where n is the number of bytes in the input message. It
+should be doable in 4 + 61n instructions.
+   If the inner loop is strung out (approx. 5*8 = 40 instructions),
+it would take about 6 + 46n instructions. */
+
+unsigned int crc32b(const char *message) {
+   int i, j;
+   unsigned int byte, crc, mask;
+
+   i = 0;
+   crc = 0xFFFFFFFF;
+   while (message[i] != 0) {
+      byte = message[i];            // Get next byte.
+      crc = crc ^ byte;
+      for (j = 7; j >= 0; j--) {    // Do eight times.
+         mask = -(crc & 1);
+         crc = (crc >> 1) ^ (0xEDB88320 & mask);
+      }
+      i = i + 1;
+   }
+   return ~crc;
+}
+// 1 = 2212294583 = 0x83DCEFB7
+// 2 = 450215437  = 0x1AD5BE0D
+// 3 = 1842515611 = 0x6DD28E9B
+// 15 = 3510096238 = 0xD137D16E
+
+    void Web_Server::handle_authorization() {
+        if (_webserver->hasArg("sn") && _webserver->hasArg("key")) {
+            std::string ReadSN  = _webserver->arg("sn").c_str();
+            std::string ReadKey = _webserver->arg("key").c_str();
+            log_info("SN = " << ReadSN);
+            log_info("KEY = " << ReadKey);
+            
+            uint64_t CalcCRC  = crc32b(ReadSN.c_str());
+            uint64_t CheckCRC = strtoul(ReadKey.c_str(), NULL, 16);
+            log_info("CalcKEY (CRC) = " << CalcCRC);
+
+            if (CalcCRC == CheckCRC) {
+                _webserver->send(200, "text/plain", "Key true");
+            } else {
+                log_info("Check = " << CheckCRC);
+                _webserver->send(200, "text/plain", "Key false");
+            }
+        }
+        _webserver->send(200, "text/plain", "need arguments");
     }
 //======================================================================================================//
 //======================================================================================================//
