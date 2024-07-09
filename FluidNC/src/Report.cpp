@@ -606,6 +606,8 @@ void report_realtime_status(Channel& channel) {
         plan_block_t* cur_block = plan_get_current_block();
         if (cur_block != NULL) {
             uint32_t ln = cur_block->line_number;
+            // С SD картой работает, но потоковая передача UGS крашит ядро (Core panic)
+            // uint32_t ln = Job::channel()->lineNumber();
             if (ln > 0) {
                 msg << "|Ln:" << ln;
             }

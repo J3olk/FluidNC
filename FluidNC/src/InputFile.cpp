@@ -13,17 +13,25 @@ InputFile::InputFile(const char* defaultFs, const char* path) : FileStream(path,
   Returns other Error code on error, after displaying a message.
 */
 Error InputFile::readLine(char* line, int maxlen) {
+    ++_line_number;
     int len = 0;
     int c;
     while ((c = read()) >= 0) {
         if (len >= maxlen) {
             return Error::LineLengthExceeded;
         }
+        if(len == 0){
+            if(c == ' ' || c == 'N' || c == 'n' || (c >= '0' && c <= '9'))
+                continue;
+            std::ostringstream s;
+            s << "N" << _line_num;
+            strcpy(line, s.str().c_str());
+            len += s.str().length();
+        }
         if (c == '\r') {
             continue;
         }
-        if (c == '\n') {
-            ++_line_number;
+        if (c == '\n') {            
             break;
         }
         line[len++] = c;
