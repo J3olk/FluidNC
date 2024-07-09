@@ -21,6 +21,14 @@ Error InputFile::readLine(char* line, int maxlen) {
         if (len >= maxlen) {
             return Error::LineLengthExceeded;
         }
+        if(len == 0){
+            if(c == ' ' || c == 'N' || c == 'n' || (c >= '0' && c <= '9'))
+                continue;
+            std::ostringstream s;
+            s << "N" << _line_num;
+            strcpy(line, s.str().c_str());
+            len += s.str().length();
+        }
         if (c == '\r') {
             continue;
         }
