@@ -578,17 +578,13 @@ unsigned int crc32b(const char *message) {
         if (_webserver->hasArg("sn") && _webserver->hasArg("key")) {
             std::string ReadSN  = _webserver->arg("sn").c_str();
             std::string ReadKey = _webserver->arg("key").c_str();
-            log_info("SN = " << ReadSN);
-            log_info("KEY = " << ReadKey);
             
             uint64_t CalcCRC  = crc32b(ReadSN.c_str());
             uint64_t CheckCRC = strtoul(ReadKey.c_str(), NULL, 16);
-            log_info("CalcKEY (CRC) = " << CalcCRC);
 
             if (CalcCRC == CheckCRC) {
                 _webserver->send(200, "text/plain", "Key true");
             } else {
-                log_info("Check = " << CheckCRC);
                 _webserver->send(200, "text/plain", "Key false");
             }
         } else {
