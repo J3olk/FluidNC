@@ -24,8 +24,6 @@ private:
     Error _pending_error = Error::Ok;
     void  end_message();
 
-    uint32_t _line_num = 0;
-
 public:
     // fsname is the default file system on which the file is located, in case the path does not specify
     // path is the full path to the file
