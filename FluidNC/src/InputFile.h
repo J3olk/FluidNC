@@ -30,8 +30,6 @@ private:
     uint32_t _line_num;  // the most recent line number read
     bool     _readyNext = true;
 
-    uint32_t _line_num = 0;
-
 public:
     static std::string _progress;
 

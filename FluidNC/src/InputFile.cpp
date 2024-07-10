@@ -25,7 +25,7 @@ Error InputFile::readLine(char* line, int maxlen) {
             if(c == ' ' || c == 'N' || c == 'n' || (c >= '0' && c <= '9'))
                 continue;
             std::ostringstream s;
-            s << "N" << _line_num;
+            s << "N" << _line_number;
             strcpy(line, s.str().c_str());
             len += s.str().length();
         }
