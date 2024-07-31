@@ -18,11 +18,10 @@
 #    include "MotionControl.h"
 #    include "Platform.h"
 #    include "StartupLog.h"
+#    include "Module.h"
 
-#    include "WebUI/TelnetServer.h"
-
-#    include "WebUI/WifiConfig.h"
 #    include "Driver/localfs.h"
+#    include "esp32-hal.h"  // disableCore0WDT
 
 #    include "PinMapper.h"
 
@@ -40,9 +39,7 @@ void setup() {
         // because the polling may depend on the config
         allChannels.init();
 
-        WebUI::WiFiConfig::reset();
-
-        display_init();
+        // WebUI::WiFiConfig::reset();
 
         protocol_init();
 
@@ -102,14 +99,6 @@ void setup() {
             }
         }
 
-        if (config->_oled) {
-            config->_oled->init();
-        }
-
-        if (config->_stat_out) {
-            config->_stat_out->init();
-        }
-
         config->_stepping->init();  // Configure stepper interrupt timers
 
         plan_init();
@@ -125,11 +114,16 @@ void setup() {
         limits_init();
 
         // Initialize system state.
+        for (auto const& module : Modules()) {
+            module->init();
+        }
+
         if (!state_is(State::ConfigAlarm)) {
-            for (auto s : config->_spindles) {
-                s->init();
+            auto spindles = Spindles::SpindleFactory::objects();
+            for (auto const& spindle : spindles) {
+                spindle->init();
             }
-            Spindles::Spindle::switchSpindle(0, config->_spindles, spindle);
+            Spindles::Spindle::switchSpindle(0, spindles, spindle);
 
             config->_coolant->init();
             config->_probe->init();
@@ -138,11 +132,6 @@ void setup() {
     } catch (const AssertionFailed& ex) {
         // This means something is terribly broken:
         log_config_error("Critical error in main_init: " << ex.what());
-    }
-
-    // Try Bluetooth first so its memory can be released if it is disabled
-    if (!WebUI::bt_config.begin()) {
-        WebUI::wifi_config.begin();
     }
 
     allChannels.ready();
