@@ -14,12 +14,12 @@
 namespace Kinematics {
     class WallPlotter : public KinematicSystem {
     public:
-        WallPlotter(const char* name) : KinematicSystem(name) {}
+        WallPlotter() = default;
 
-        WallPlotter(const WallPlotter&)            = delete;
-        WallPlotter(WallPlotter&&)                 = delete;
+        WallPlotter(const WallPlotter&) = delete;
+        WallPlotter(WallPlotter&&)      = delete;
         WallPlotter& operator=(const WallPlotter&) = delete;
-        WallPlotter& operator=(WallPlotter&&)      = delete;
+        WallPlotter& operator=(WallPlotter&&) = delete;
 
         // Kinematic Interface
 
@@ -35,6 +35,9 @@ namespace Kinematics {
         void validate() override {}
         void group(Configuration::HandlerBase& handler) override;
         void afterParse() override {}
+
+        // Name of the configurable. Must match the name registered in the cpp file.
+        const char* name() const override { return "WallPlotter"; }
 
         ~WallPlotter() {}
 

@@ -5,7 +5,7 @@
 namespace MotorDrivers {
     class Nullmotor : public MotorDriver {
     public:
-        Nullmotor(const char* name) : MotorDriver(name) {}
+        Nullmotor() = default;
 
         bool set_homing_mode(bool isHoming) { return false; }
 
@@ -13,5 +13,7 @@ namespace MotorDrivers {
 
         // Configuration handlers:
         void group(Configuration::HandlerBase& handler) override {}
+
+        const char* name() const override { return "null_motor"; }
     };
 }

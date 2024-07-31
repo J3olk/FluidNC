@@ -47,8 +47,8 @@ extern Counter report_ovr_counter;
 extern Counter report_wco_counter;
 
 //function to notify
-void notify(const char* title, const char* msg);
-void notifyf(const char* title, const char* format, ...);
+void _notify(const char* title, const char* msg);
+void _notifyf(const char* title, const char* format, ...);
 
 // Prints miscellaneous feedback messages.
 void report_feedback_message(Message message);
@@ -93,6 +93,9 @@ const char* state_name();
 extern const char* grbl_version;
 extern const char* git_info;
 extern const char* git_url;
+
+// Callout to custom code
+void display_init();
 
 extern bool readyNext;
 

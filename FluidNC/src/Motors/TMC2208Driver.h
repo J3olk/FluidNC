@@ -15,8 +15,6 @@ namespace MotorDrivers {
 
     class TMC2208Driver : public TrinamicUartDriver {
     public:
-        TMC2208Driver(const char* name) : TrinamicUartDriver(name) {}
-
         // Overrides for inherited methods
         void init() override;
         void set_disable(bool disable);
@@ -32,6 +30,9 @@ namespace MotorDrivers {
             handler.item("stallguard_debug", _stallguardDebugMode);
             handler.item("toff_coolstep", _toff_coolstep, 2, 15);
         }
+
+        // Name of the configurable. Must match the name registered in the cpp file.
+        const char* name() const override { return "tmc_2208"; }
 
     private:
         TMC2208Stepper* tmc2208 = nullptr;

@@ -21,11 +21,8 @@ namespace Spindles {
 
     // This is the base class. Do not use this as your spindle
     class Spindle : public Configuration::Configurable {
-    private:
-        const char* _name;
-
     public:
-        Spindle(const char* name) : _name(name) {}
+        Spindle() = default;
 
         Spindle(const Spindle&)            = delete;
         Spindle(Spindle&&)                 = delete;
@@ -73,7 +70,7 @@ namespace Spindles {
         bool _off_on_alarm = false;
 
         // Name is required for the configuration factory to work.
-        const char* name() { return _name; }
+        virtual const char* name() const = 0;
 
         // Configuration handlers:
         void validate() override {

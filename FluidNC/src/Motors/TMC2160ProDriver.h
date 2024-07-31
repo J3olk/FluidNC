@@ -15,7 +15,7 @@ namespace MotorDrivers {
 
     class TMC2160Driver : public TMC5160ProDriver {
     public:
-        TMC2160Driver(const char* name) : TMC5160ProDriver(name) {}
+        const char* name() const override { return "tmc_2160Pro"; }
 
     private:
     };

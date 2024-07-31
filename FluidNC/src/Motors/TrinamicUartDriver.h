@@ -14,7 +14,7 @@ namespace MotorDrivers {
 
     class TrinamicUartDriver : public TrinamicBase {
     public:
-        TrinamicUartDriver(const char* name) : TrinamicBase(name) {}
+        TrinamicUartDriver() = default;
 
         void init() override;
 
@@ -49,6 +49,7 @@ namespace MotorDrivers {
         uint8_t toffValue();  // TO DO move to Base?
 
     private:
+
     };
 
 }

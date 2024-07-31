@@ -66,8 +66,11 @@ namespace Spindles {
 
         bool safety_polling() const override { return true; }
 
+        // Name of the configurable. Must match the name registered in the cpp file.
+        const char* name() const override { return "DanfossVLT2800"; }
+
     public:
-        DanfossVLT2800(const char* name) : VFD(name) {}
+        DanfossVLT2800();
         void init();
 
     private:

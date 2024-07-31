@@ -1,10 +1,12 @@
 #pragma once
 
-#include "src/Config.h"
-#include "src/Module.h"
-#include "src/Channel.h"
+#include "Config.h"
+#include "Configuration/Configurable.h"
+#include "Channel.h"
 
-class Status_Outputs : public Channel, public Module {
+typedef const uint8_t* font_t;
+
+class Status_Outputs : public Channel, public Configuration::Configurable {
     Pin _Idle_pin;
     Pin _Run_pin;
     Pin _Hold_pin;
@@ -21,16 +23,16 @@ private:
     void parse_status_report();
 
 public:
-    Status_Outputs(const char* name) : Channel(name), Module(name) {}
+    Status_Outputs() : Channel("status_outputs") {}
 
-    Status_Outputs(const Status_Outputs&)            = delete;
-    Status_Outputs(Status_Outputs&&)                 = delete;
+    Status_Outputs(const Status_Outputs&) = delete;
+    Status_Outputs(Status_Outputs&&)      = delete;
     Status_Outputs& operator=(const Status_Outputs&) = delete;
-    Status_Outputs& operator=(Status_Outputs&&)      = delete;
+    Status_Outputs& operator=(Status_Outputs&&) = delete;
 
     virtual ~Status_Outputs() = default;
 
-    void init() override;
+    void init();
 
     size_t write(uint8_t data) override;
 

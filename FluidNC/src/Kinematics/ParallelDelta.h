@@ -23,7 +23,7 @@ namespace Kinematics {
 
     class ParallelDelta : public Cartesian {
     public:
-        ParallelDelta(const char* name) : Cartesian(name) {}
+        ParallelDelta() = default;
 
         ParallelDelta(const ParallelDelta&)            = delete;
         ParallelDelta(ParallelDelta&&)                 = delete;
@@ -55,6 +55,9 @@ namespace Kinematics {
         //void         validate() const override {}
         virtual void group(Configuration::HandlerBase& handler) override;
         void         afterParse() override {}
+
+        // Name of the configurable. Must match the name registered in the cpp file.
+        virtual const char* name() const override { return "parallel_delta"; }
 
         ~ParallelDelta() {}
 

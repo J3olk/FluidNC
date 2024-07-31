@@ -28,6 +28,9 @@
 #include "Stepper.h"                     // step_count
 #include "Platform.h"                    // WEAK_LINK
 #include "WebUI/NotificationsService.h"  // WebUI::notificationsService
+#include "WebUI/WifiConfig.h"            // wifi_config
+#include "WebUI/BTConfig.h"              // bt_config
+#include "WebUI/WebSettings.h"
 #include "InputFile.h"
 #include "Job.h"
 
@@ -51,7 +54,11 @@ std::string report_pin_string;
 
 portMUX_TYPE mmux = portMUX_INITIALIZER_UNLOCKED;
 
-void notifyf(const char* title, const char* format, ...) {
+void _notify(const char* title, const char* msg) {
+    WebUI::notificationsService.sendMSG(title, msg);
+}
+
+void _notifyf(const char* title, const char* format, ...) {
     char    loc_buf[64];
     char*   temp = loc_buf;
     va_list arg;
@@ -68,7 +75,7 @@ void notifyf(const char* title, const char* format, ...) {
         }
     }
     len = vsnprintf(temp, len + 1, format, arg);
-    notify(title, temp);
+    _notify(title, temp);
     va_end(arg);
     if (temp != loc_buf) {
         delete[] temp;
@@ -146,6 +153,22 @@ void report_error_message(Message message) {  // ok to send to all channels
     }
 }
 
+const char* radio =
+#if defined(ENABLE_WIFI) || defined(ENABLE_BLUETOOTH)
+#    if defined(ENABLE_WIFI) && defined(ENABLE_BLUETOOTH)
+    "wifi+bt";
+#    else
+#        ifdef ENABLE_WIFI
+    "wifi";
+#        endif
+#        ifdef ENABLE_BLUETOOTH
+"bt";
+#        endif
+#    endif
+#else
+    "noradio";
+#endif
+
 // Welcome message
 void report_init_message(Channel& channel) {
     log_string(channel, "");  // Empty line for spacer
@@ -167,21 +190,9 @@ void report_init_message(Channel& channel) {
                 case 'V':
                     msg << grbl_version;
                     break;
-                case 'R': {
-                    const char* delim     = "";
-                    bool        have_name = false;
-                    for (auto const& module : Modules()) {
-                        if (module->is_radio()) {
-                            have_name = true;
-                            msg << delim;
-                            delim = "+";
-                            msg << module->name();
-                        }
-                    }
-                    if (!have_name) {
-                        msg << "noradio";
-                    }
-                } break;
+                case 'R':
+                    msg << radio;
+                    break;
                 default:
                     msg << c;
                     break;
@@ -392,12 +403,11 @@ void report_build_info(const char* line, Channel& channel) {
     if (ALLOW_FEED_OVERRIDE_DURING_PROBE_CYCLES) {
         msg += "A";
     }
-    for (auto const& module : Modules()) {
-        if (module->is_radio() && strcmp(module->name(), "bt") == 0) {
-            msg += "B";
-            break;
-        }
+#ifdef ENABLE_BLUETOOTH
+    if (WebUI::bt_enable->get()) {
+        msg += "B";
     }
+#endif
     msg += "S";
     if (config->_enableParkingOverrideControl) {
         msg += "R";
@@ -412,8 +422,20 @@ void report_build_info(const char* line, Channel& channel) {
 
     log_msg_to(channel, "Machine: " << config->_name);
 
-    for (auto const& module : Modules()) {
-        module->build_info(channel);
+    std::string station_info = WebUI::wifi_config.station_info();
+    if (station_info.length()) {
+        log_msg_to(channel, station_info);
+    }
+    std::string ap_info = WebUI::wifi_config.ap_info();
+    if (ap_info.length()) {
+        log_msg_to(channel, ap_info);
+    }
+    if (!station_info.length() && !ap_info.length()) {
+        log_msg_to(channel, "No Wifi");
+    }
+    std::string bt_info = WebUI::bt_config.info();
+    if (bt_info.length()) {
+        log_msg_to(channel, bt_info);
     }
 }
 
@@ -700,4 +722,4 @@ void reportTaskStackSize(UBaseType_t& saved) {
 #endif
 }
 
-void WEAK_LINK notify(const char* title, const char* msg) {}
+void WEAK_LINK display_init() {}

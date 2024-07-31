@@ -34,7 +34,7 @@ namespace MotorDrivers {
         bool _has_errors = false;
 
     public:
-        RcServo(const char* name) : Servo(name) {}
+        RcServo() = default;
         ~RcServo() {
             if (_pwm) {
                 delete _pwm;
@@ -50,6 +50,8 @@ namespace MotorDrivers {
 
         void _write_pwm(uint32_t duty);
 
+        const char* name() override { return "rc_servo"; }
+
         // Configuration handlers:
         void group(Configuration::HandlerBase& handler) override {
             handler.item("output_pin", _output_pin);
@@ -60,5 +62,8 @@ namespace MotorDrivers {
 
             Servo::group(handler);
         }
+
+        // Name of the configurable. Must match the name registered in the cpp file.
+        const char* name() const override { return "rc_servo"; }
     };
 }

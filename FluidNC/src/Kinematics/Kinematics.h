@@ -15,9 +15,17 @@ You can add your own type of kinematics by adding 2 new files to the Kinematics 
 my_delta.h
 my_delta.cpp
 
-Use some of the others as an example.
+Use some of the others as an example. Be sure to have the code for the config file.
 
-You will be able to add your kinematics using the config file.
+Surround all the code in both files with
+#ifdef my_delta_kinematics
+
+#endif
+
+Add a #define to this file for your kinematic
+#define my_delta_kinematics
+
+You will be ablr to add your kinematic using the config file.
 
 */
 
@@ -33,8 +41,8 @@ namespace Kinematics {
         void group(Configuration::HandlerBase& handler) override;
         void afterParse() override;
         void init();
-
         void init_position();
+        void config_kinematics();
 
         bool cartesian_to_motors(float* target, plan_line_data_t* pl_data, float* position);
         void motors_to_cartesian(float* cartesian, float* motors, int n_axis);
@@ -55,10 +63,8 @@ namespace Kinematics {
     };
 
     class KinematicSystem : public Configuration::Configurable {
-        const char* _name;
-
     public:
-        KinematicSystem(const char* name) : _name(name) {}
+        KinematicSystem() = default;
 
         KinematicSystem(const KinematicSystem&)            = delete;
         KinematicSystem(KinematicSystem&&)                 = delete;
@@ -92,7 +98,7 @@ namespace Kinematics {
         void validate() override {}
 
         // Name of the configurable. Must match the name registered in the cpp file.
-        const char* name() { return _name; }
+        virtual const char* name() const = 0;
 
         // Virtual base classes require a virtual destructor.
         virtual ~KinematicSystem() {}

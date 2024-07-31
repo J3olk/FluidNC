@@ -13,14 +13,19 @@ namespace Spindles {
     // This is for an on/off spindle all RPMs above 0 are on
     class Relay : public OnOff {
     public:
-        Relay(const char* name) : OnOff(name) {}
+        Relay() = default;
 
-        Relay(const Relay&)            = delete;
-        Relay(Relay&&)                 = delete;
+        Relay(const Relay&) = delete;
+        Relay(Relay&&)      = delete;
         Relay& operator=(const Relay&) = delete;
-        Relay& operator=(Relay&&)      = delete;
+        Relay& operator=(Relay&&) = delete;
 
         ~Relay() {}
+
+        // Configuration handlers:
+
+        // Name of the configurable. Must match the name registered in the cpp file.
+        const char* name() const override { return "Relay"; }
 
     protected:
     };

@@ -15,7 +15,6 @@ namespace MotorDrivers {
 
     class TMC5160Driver : public TrinamicSpiDriver {
     public:
-        TMC5160Driver(const char* name) : TrinamicSpiDriver(name) {}
         // Overrides for inherited methods
         void init() override;
         void set_disable(bool disable);
@@ -27,6 +26,9 @@ namespace MotorDrivers {
             TrinamicSpiDriver::group(handler);
             handler.item("tpfd", _tpfd, 0, 15);
         }
+
+        // Name of the configurable. Must match the name registered in the cpp file.
+        const char* name() const override { return "tmc_5160"; }
 
     private:
         TMC5160Stepper* tmc5160 = nullptr;

@@ -1,6 +1,8 @@
 #include "NowForeverSpindle.h"
 
 namespace Spindles {
+    NowForever::NowForever() : VFD() {}
+
     void NowForever::direction_command(SpindleState mode, ModbusCommand& data) {
         data.tx_length = 9;
         data.rx_length = 6;
