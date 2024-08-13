@@ -106,6 +106,7 @@ namespace WebUI {
 
         //create instance
         _webserver = new WebServer(_port);
+        _webserver->enableCrossOrigin(true);
 #    ifdef ENABLE_AUTHENTICATION
         //here the list of headers to be recorded
         const char* headerkeys[]   = { "Cookie" };
@@ -295,6 +296,7 @@ namespace WebUI {
         }
         if (download) {
             _webserver->sendHeader("Content-Disposition", "attachment");
+            _webserver->sendHeader("Cache-Control", "public, max-age=31536000");
         }
         if (hash.length()) {
             _webserver->sendHeader("ETag", hash.c_str());
@@ -1298,7 +1300,7 @@ unsigned int crc32b(const char *message) {
         }
         const char* s = suffix + slen;
         const char* t = test + tlen;
-        while (--s != s) {
+        while (--s != suffix) {
             if (tolower(*s) != tolower(*--t)) {
                 return false;
             }
