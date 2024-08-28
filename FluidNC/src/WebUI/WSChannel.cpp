@@ -160,7 +160,14 @@ namespace WebUI {
         WSChannel* wsChannel = getWSChannel(pageid);
         if (wsChannel) {
             if (cmd.length()) {
-                if (is_realtime_command(cmd[0])) {
+                if(cmd.size() == 4 && cmd[1] == 'x'){
+                    char *p;
+                    long l = strtoul(cmd.substr(2, 2).begin(), &p, 16);
+                    if(*p == 0){
+                        auto s = std::to_string(l);
+                        wsChannel->handleRealtimeCharacter((uint8_t)l);
+                    }
+                } else if (is_realtime_command(cmd[0])) {
                     for (auto const& c : cmd) {
                         wsChannel->handleRealtimeCharacter((uint8_t)c);
                     }
