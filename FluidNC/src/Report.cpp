@@ -585,6 +585,9 @@ void report_realtime_status(Channel& channel) {
     LogStream msg(channel, "<");
     msg << state_name();
 
+    if(sys.state == State::Alarm)
+        msg << "|Al:" << (uint8_t)lastAlarm;
+
     // Report position
     float* print_position = get_mpos();
     if (bits_are_true(status_mask->get(), RtStatus::Position)) {
