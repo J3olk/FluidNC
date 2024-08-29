@@ -295,7 +295,7 @@ namespace WebUI {
         }
         if (download) {
             _webserver->sendHeader("Content-Disposition", "attachment");
-            _webserver->sendHeader("Cache-Control", "public, max-age=31536000");
+            _webserver->sendHeader("Cache-Control", "no-cache");
         }
         if (hash.length()) {
             _webserver->sendHeader("ETag", hash.c_str());
