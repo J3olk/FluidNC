@@ -166,10 +166,11 @@ namespace WebUI {
         if (WiFi.getMode() == WIFI_AP) {
             // if DNSServer is started with "*" for domain name, it will reply with
             // provided IP to all DNS request
-            dnsServer.start(DNS_PORT, "*", WiFi.softAPIP());
-            log_info("Captive Portal Started");
+            // * Убрано автоматическое перенаправление
+            // dnsServer.start(DNS_PORT, "*", WiFi.softAPIP());
+            // log_info("Captive Portal Started");
             _webserver->on("/generate_204", HTTP_ANY, handle_root);
-            _webserver->on("/gconnectivitycheck.gstatic.com", HTTP_ANY, handle_root);
+            // _webserver->on("/gconnectivitycheck.gstatic.com", HTTP_ANY, handle_root);
             //do not forget the / at the end
             _webserver->on("/fwlink/", HTTP_ANY, handle_root);
         }
@@ -1256,9 +1257,9 @@ unsigned int crc32b(const char *message) {
 
     void Web_Server::handle() {
         static uint32_t start_time = millis();
-        if (WiFi.getMode() == WIFI_AP) {
-            dnsServer.processNextRequest();
-        }
+        // if (WiFi.getMode() == WIFI_AP) {
+        //     dnsServer.processNextRequest();
+        // }
         if (_webserver) {
             _webserver->handleClient();
         }
