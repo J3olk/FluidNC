@@ -585,7 +585,7 @@ void report_realtime_status(Channel& channel) {
     LogStream msg(channel, "<");
     msg << state_name();
 
-    if(sys.state == State::Alarm)
+    if(sys.state == State::Alarm || sys.state==State::Critical || sys.state==State::ConfigAlarm)
         msg << "|Al:" << (uint8_t)lastAlarm;
 
     // Report position
