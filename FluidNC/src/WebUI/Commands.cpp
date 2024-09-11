@@ -10,6 +10,14 @@
 
 #include <esp_err.h>
 #include <cstring>
+#include <freertos/task.h>
+
+void _restart(void* unused)
+{
+    vTaskDelay(pdMS_TO_TICKS(100));
+    ESP.restart();
+    vTaskDelete(NULL);
+}
 
 namespace WebUI {
     bool COMMANDS::_restart_MCU = false;
@@ -43,8 +51,8 @@ namespace WebUI {
     // cppcheck-suppress unusedFunction
     void COMMANDS::handle() {
         if (_restart_MCU) {
-            ESP.restart();
-            while (1) {}
+            _restart_MCU = false;
+            xTaskCreate(_restart, "_restart", 2048, NULL, 5, NULL);
         }
     }
 }
