@@ -79,6 +79,7 @@ namespace WebUI {
         static void handle_login();
         static void handle_loginAdmin();
         static void handle_homedAxis();
+        static void handle_ping();
         static void handle_authorization();
         static void handle_not_found();
         static void _handle_web_command(bool);

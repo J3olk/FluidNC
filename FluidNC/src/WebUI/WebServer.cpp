@@ -145,6 +145,7 @@ namespace WebUI {
         _webserver->on("/loginAdmin", HTTP_ANY, handle_loginAdmin);
         _webserver->on("/homedAxis", HTTP_ANY, handle_homedAxis);
         _webserver->on("/authorization", HTTP_ANY, handle_authorization);
+        _webserver->on("/ping", HTTP_ANY, handle_ping);
 //======================================================================================================//
 
         //web commands
@@ -541,6 +542,10 @@ namespace WebUI {
         }
         _webserver->send(200, "text/plain", homedAxes.c_str());
         log_debug("Homed: " << homedAxes);
+    }
+
+    void Web_Server::handle_ping() {
+        _webserver->send(200, "text/plain", "");
     }
 
 // https://web.archive.org/web/20190108202303/http://www.hackersdelight.org/hdcodetxt/crc.c.txt
