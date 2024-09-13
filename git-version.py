@@ -10,9 +10,9 @@ except:
     gitFail = True
 
 if gitFail:
-    tag = "v3.7.17"
+    tag = "v3.7.18"
     rev = " Electropribor"
-    url = " v6"
+    url = " v7"
 else:
     try:
         tag = (
