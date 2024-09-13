@@ -39,6 +39,7 @@
 #    include <list>
 
 #    include "src/Machine/Homing.h"
+#    include "src/InputFile.h"
 
 namespace WebUI {
     const byte DNS_PORT = 53;
@@ -147,6 +148,7 @@ namespace WebUI {
         _webserver->on("/homedAxis", HTTP_ANY, handle_homedAxis);
         _webserver->on("/authorization", HTTP_ANY, handle_authorization);
         _webserver->on("/ping", HTTP_ANY, handle_ping);
+        _webserver->on("/estop", HTTP_ANY, handle_estop);
 //======================================================================================================//
 
         //web commands
@@ -598,6 +600,13 @@ unsigned int crc32b(const char *message) {
         } else {
             _webserver->send(200, "text/plain", "Need arguments");
         }
+    }
+
+    void Web_Server::handle_estop() {
+        InputFile::_progress = "";
+        mc_critical(ExecAlarm::HardStop);
+        log_info("Stopped by Web E-STOP");
+        _webserver->send(200, "text/plain", "");
     }
 //======================================================================================================//
 //======================================================================================================//
