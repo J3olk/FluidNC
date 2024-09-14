@@ -266,7 +266,7 @@ namespace WebUI {
             hash = HashFS::hash(gzpath);
         }
 
-        if (hash.length() && std::string(_webserver->header("If-None-Match").c_str()) == hash) {
+        if (strcmp(path, "index.html") !=0  && hash.length() && std::string(_webserver->header("If-None-Match").c_str()) == hash) {
             log_debug(path << " is cached");
             _webserver->send(304);
             return true;
