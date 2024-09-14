@@ -771,13 +771,19 @@ unsigned int crc32b(const char *message) {
     void Web_Server::handleReloadBlocked() {
         _webserver->send(503,
                          "text/html",
-                         "<!DOCTYPE html><html><body>"
-                         "<h3>Cannot load WebUI while moving</h3>"
-                         "<button onclick='window.location.reload()'>Retry</button>"
-                         "&nbsp;Retry (you must first wait for motion to finish)<br><br>"
-                         "<button onclick='window.location.replace(\"/feedhold_reload\")'>Feedhold</button>"
-                         "&nbsp;Stop the motion with feedhold and then retry<br>"
-                         "</body></html>");
+                        "<!DOCTYPE html><html><head><meta charset=\"utf-8\">"
+                        "<meta name=\"viewport\" content=\"user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width\">"
+                        "<style type=\"text/css\">body{padding-top:60px}.text-center{text-align:center}"
+                        ".text-h5{font-size:1.5rem;line-height:2rem}"
+                        "button{background:#eee;border-radius:16px;padding:12px 12px;text-transform:uppercase;border:1px solid rgba(0,0,0,.2);line-height:1.715em}"
+                        ".q-mt-md{margin-top:12px}</style></head><body>"
+                        "<div class=\"text-center text-h5\">Загрузка невозможна во время движения</div>"
+                        "<div class=\"q-px-md text-center\">"
+                        "<button class=\"q-mt-md\" onclick=\"window.location.reload()\">Повторить</button>"
+                        "<div class=\"q-mt-md\">Сначала нужно дождаться окончания движения</div>"
+                        "<button class=\"q-mt-md\" onclick=\"window.location.replace('/feedhold_reload')\">Удержать</button>"
+                        "<div class=\"q-mt-md\">Остановить движение с помощью удержания подачи и повторить попытку</div>"
+                        "</div></body></html>");
     }
     // This page issues a feedhold to pause the motion then retries the WebUI reload
     void Web_Server::handleFeedholdReload() {
