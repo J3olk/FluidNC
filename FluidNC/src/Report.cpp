@@ -623,6 +623,21 @@ void report_realtime_status(Channel& channel) {
     }
     msg << "|FS:" << setprecision(0) << rate << "," << sys.spindle_speed;
 
+    msg << "|Sp:";
+    switch (gc_state.modal.spindle) {
+        case SpindleState::Cw:
+            msg << "M3";
+            break;
+        case SpindleState::Ccw:
+            msg << "M4";
+            break;
+        case SpindleState::Disable:
+            msg << "M5";
+            break;
+        default:
+            break;
+    }
+
     if (report_pin_string.length()) {
         msg << "|Pn:" << report_pin_string;
     }
