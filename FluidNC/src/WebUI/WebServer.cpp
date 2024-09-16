@@ -250,6 +250,21 @@ namespace WebUI {
 
     // Send a file, either the specified path or path.gz
     bool Web_Server::myStreamFile(const char* path, bool download) {
+        // If you load or reload WebUI while a program is running, there is a high
+        // risk of stalling the motion because serving a file from
+        // the local FLASH filesystem takes away a lot of CPU cycles.  If we get
+        // a request for a file when running, reject it to preserve the motion
+        // integrity.
+        // This can make it hard to debug ISR IRAM problems, because the easiest
+        // way to trigger such problems is to refresh WebUI during motion.
+        if (http_block_during_motion->get() && inMotionState()) {
+            if(strcmp(path, "index.html") == 0)
+                Web_Server::handleReloadBlocked();
+            else
+                _webserver->send(423);
+            return true;
+        }
+
         std::error_code ec;
         FluidPath       fpath { path, localfsName, ec };
         if (ec) {
@@ -266,20 +281,9 @@ namespace WebUI {
             hash = HashFS::hash(gzpath);
         }
 
-        if (strcmp(path, "index.html") !=0  && hash.length() && std::string(_webserver->header("If-None-Match").c_str()) == hash) {
+        if (hash.length() && std::string(_webserver->header("If-None-Match").c_str()) == hash) {
             log_debug(path << " is cached");
             _webserver->send(304);
-            return true;
-        }
-        // If you load or reload WebUI while a program is running, there is a high
-        // risk of stalling the motion because serving a file from
-        // the local FLASH filesystem takes away a lot of CPU cycles.  If we get
-        // a request for a file when running, reject it to preserve the motion
-        // integrity.
-        // This can make it hard to debug ISR IRAM problems, because the easiest
-        // way to trigger such problems is to refresh WebUI during motion.
-        if (http_block_during_motion->get() && inMotionState()) {
-            Web_Server::handleReloadBlocked();
             return true;
         }
 
@@ -300,7 +304,7 @@ namespace WebUI {
         }
         if (download) {
             _webserver->sendHeader("Content-Disposition", "attachment");
-            _webserver->sendHeader("Cache-Control", "public, max-age=31536000");
+            _webserver->sendHeader("Cache-Control", "no-cache");
         }
         if (hash.length()) {
             _webserver->sendHeader("ETag", hash.c_str());
