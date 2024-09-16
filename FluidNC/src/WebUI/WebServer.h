@@ -97,6 +97,8 @@ namespace WebUI {
 
         static bool myStreamFile(const char* path, bool download = false);
 
+        static void write(Stream& stream);
+
         static void pushError(int code, const char* st, bool web_error = 500, uint16_t timeout = 1000);
 
         static void cancelUpload();

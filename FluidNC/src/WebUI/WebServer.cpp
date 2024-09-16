@@ -319,11 +319,32 @@ namespace WebUI {
         // The Arduino implementation of WiFiClient::write(Stream*) just
         // reads repetitively from the stream in 1360-byte chunks and
         // sends the data over the TCP socket. so nothing special.
-        _webserver->client().write(*file);
+        //_webserver->client().write(*file);
+        write(*file);
 
         delete file;
         return true;
     }
+
+    void Web_Server::write(Stream &stream)
+    {
+        uint8_t * buf = (uint8_t *)malloc(1360);
+        if(!buf){
+            return;
+        }
+        size_t toRead = 0, toWrite = 0;
+        size_t available = stream.available();
+        while(available){
+            toRead = (available > 1360) ? 1360 : available;
+            toWrite = stream.readBytes(buf, toRead);
+            size_t written = _webserver->client().write(buf, toWrite);
+            if(written < toWrite)
+                break;
+            available = stream.available();
+        }
+        free(buf);
+    }
+
     void Web_Server::sendWithOurAddress(const char* content, int code) {
         auto        ip    = WiFi.getMode() == WIFI_STA ? WiFi.localIP() : WiFi.softAPIP();
         std::string ipstr = IP_string(ip);
