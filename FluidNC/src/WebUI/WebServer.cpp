@@ -51,6 +51,8 @@ namespace WebUI {
 //embedded response file if no files on LocalFS
 #    include "NoFile.h"
 
+extern const char* git_url;
+
 namespace WebUI {
     // Error codes for upload
     const int ESP_ERROR_AUTHENTICATION   = 1;
@@ -573,7 +575,7 @@ namespace WebUI {
     }
 
     void Web_Server::handle_ping() {
-        _webserver->send(200, "text/plain", "");
+        _webserver->send(200, "text/plain", git_url);
     }
 
 // https://web.archive.org/web/20190108202303/http://www.hackersdelight.org/hdcodetxt/crc.c.txt
