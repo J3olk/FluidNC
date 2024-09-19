@@ -582,10 +582,28 @@ namespace WebUI {
             log_string(out, "Busy");
             return Error::IdleError;
         }
-        InputFile* theFile;
-        if ((err = openFile(fs, parameter, auth_level, out, theFile)) != Error::Ok) {
-            return err;
+        std::vector<std::string> params;
+        std::istringstream f(parameter);
+        std::string s;
+
+        while (getline(f, s, '>')) {
+            params.push_back(s);
         }
+
+        InputFile* theFile;
+        if(params.size() == 3) {
+            if ((err = openFile(fs, params[0].c_str(), auth_level, out, theFile)) != Error::Ok) {
+                return err;
+            }
+            if(theFile->seekTo(atol(params[1].c_str()), atol(params[2].c_str())) != 0) {
+                return Error::FsFailedRead;
+            }
+        } else {
+            if ((err = openFile(fs, parameter, auth_level, out, theFile)) != Error::Ok) {
+                return err;
+            }
+        }
+
         allChannels.registration(theFile);
 
         //report_realtime_status(out);

@@ -37,6 +37,7 @@ public:
     int         available() override;
     int         read() override;
     int         peek() override;
+    int         seek(long pos);
     void        flush() override;
 
     size_t readBytes(char* buffer, size_t length) { return read((uint8_t*)buffer, length); }

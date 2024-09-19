@@ -54,6 +54,8 @@ public:
 
     Error readLine(char* line, int len);
 
+    int seekTo(long pos, uint32_t line);
+
     // These are used for feedback about the progress of the operation
     uint32_t getLineNumber() { return _line_num; }
     float    percent_complete();

@@ -28,6 +28,10 @@ int FileStream::peek() {
 
 void FileStream::flush() {}
 
+int FileStream::seek(long pos) {
+    return fseek(_fd, pos, SEEK_SET);
+}
+
 size_t FileStream::read(char* buffer, size_t length) {
     return fread(buffer, 1, length, _fd);
 }

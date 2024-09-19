@@ -41,6 +41,11 @@ Error InputFile::readLine(char* line, int maxlen) {
     return len || c >= 0 ? Error::Ok : Error::Eof;
 }
 
+int	InputFile::seekTo(long pos, uint32_t line) {
+    _line_num = line;
+    return seek(pos);
+}
+
 // return a percentage complete 50.5 = 50.5%
 float InputFile::percent_complete() {
     return (float)position() / (float)size() * 100.0f;
