@@ -88,9 +88,9 @@ static const int coordStringLen = 20;
 static const int axesStringLen  = coordStringLen * MAX_N_AXIS;
 
 // Sends the axis values to the output channel
-static std::string report_util_axis_values(const float* axis_value) {
+static std::string report_util_axis_values(const float* axis_value, int numAxes = 0) {
     std::ostringstream msg;
-    auto               n_axis = config->_axes->_numberAxis;
+    auto               n_axis = numAxes > 0 ? numAxes : config->_axes->_numberAxis;
     for (size_t idx = 0; idx < n_axis; idx++) {
         int   decimals;
         float value = axis_value[idx];
@@ -212,7 +212,7 @@ void report_probe_parameters(Channel& channel) {
     float print_position[MAX_N_AXIS];
     motor_steps_to_mpos(print_position, probe_steps);
 
-    log_stream(channel, "[PRB:" << report_util_axis_values(print_position) << ":" << probe_succeeded);
+    log_stream(channel, "[PRB:" << report_util_axis_values(print_position, 3) << ":" << probe_succeeded);
 }
 
 // Prints NGC parameters (coordinate offsets, probing)
