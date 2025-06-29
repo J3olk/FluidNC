@@ -12,7 +12,7 @@ except:
 if gitFail:
     tag = "v3.7.18"
     rev = " Electropribor"
-    url = " v7"
+    url = "v7"
 else:
     try:
         tag = (

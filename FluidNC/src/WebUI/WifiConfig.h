@@ -47,7 +47,7 @@ namespace WebUI {
     static const char* DEFAULT_STA_IP     = "0.0.0.0";
     static const char* DEFAULT_STA_GW     = "0.0.0.0";
     static const char* DEFAULT_STA_MK     = "0.0.0.0";
-    static const char* DEFAULT_AP_SSID    = "FluidNC";
+    static const char* DEFAULT_AP_SSID    = "MGFN 2.0";
     static const char* DEFAULT_AP_PWD     = "12345678";
     static const char* DEFAULT_AP_IP      = "192.168.0.1";
     static const char* DEFAULT_AP_MK      = "255.255.255.0";
