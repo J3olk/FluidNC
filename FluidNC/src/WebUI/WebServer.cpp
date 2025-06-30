@@ -546,7 +546,7 @@ namespace WebUI {
 //======================================================================================================//
 //======================================================================================================//
     void Web_Server::handle_loginAdmin() {
-        std::string AdminPass = "12345678";
+        std::string AdminPass = "58427315";
         if (_webserver->hasArg("PASSWORD")) {
             std::string ReadPass = _webserver->arg("PASSWORD").c_str();
             if (ReadPass == AdminPass) {
