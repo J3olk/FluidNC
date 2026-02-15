@@ -42,6 +42,7 @@
 #include <iomanip>
 
 #include "PinMapper.h"
+#include "Machine/Homing.h"
 
 #ifdef DEBUG_REPORT_HEAP
 EspClass esp;
@@ -532,13 +533,21 @@ void report_realtime_debug() {}
 
 //======================================================================================================//
 //======================================================================================================//
+// Красная лампочка
 void OnlyRedDiodOn() {
   digitalWrite(14, 1);   // Красный 14
   digitalWrite(13, 0);   // Зеленый 13
 }
 
+// Зеленая лампочка
 void OnlyGreenDiodOn() {
   digitalWrite(14, 0);   // Красный 14
+  digitalWrite(13, 1);   // Зеленый 13
+}
+
+// Желтая лампочка
+void YellowDiodOn() {
+  digitalWrite(14, 1);   // Красный 14
   digitalWrite(13, 1);   // Зеленый 13
 }
 
@@ -546,8 +555,14 @@ void report_update()
 {
     if (limits_get_state()) {
 		OnlyRedDiodOn();
-	} else {
+	}
+    // Проверка на забазированные оси и статус поиска базы (14 аларм)
+    // 0 - X, 1 - Y, 2 - Z
+    if ((Homing::axis_is_homed(0) == 0 || Homing::axis_is_homed(1) == 0 || Homing::axis_is_homed(2) == 0) && ((uint8_t)lastAlarm == 14)) {
+        YellowDiodOn();
+    } else {
 	    switch (sys.state) {
+            // Зеленая лампочка
             case State::Idle: OnlyGreenDiodOn();
                 break;
             case State::Jog: OnlyGreenDiodOn();
@@ -557,19 +572,22 @@ void report_update()
             case State::CheckMode: OnlyGreenDiodOn();
                 break;
     //====================================================//
+            // Желтая лампочка
+            case State::Homing: YellowDiodOn();
+                break;
+            case State::SafetyDoor: YellowDiodOn();
+                break;	
+            case State::Hold: YellowDiodOn();
+                break;
+            case State::Sleep: YellowDiodOn();
+                break;
+    //====================================================//
+            // Красная лампочка
             case State::Alarm: OnlyRedDiodOn();
                 break;
             case State::Critical: OnlyRedDiodOn();
-                break;
-            case State::Homing: OnlyRedDiodOn();
-                break;		
-            case State::ConfigAlarm: OnlyRedDiodOn();
-                break;
-            case State::Sleep: OnlyRedDiodOn();
-                break;
-            case State::SafetyDoor: OnlyRedDiodOn();
                 break;	
-            case State::Hold: OnlyRedDiodOn();
+            case State::ConfigAlarm: OnlyRedDiodOn();
                 break;
 	  	}
    }

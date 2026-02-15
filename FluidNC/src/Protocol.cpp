@@ -1000,7 +1000,7 @@ static void protocol_do_limit(void* arg) {
         limit->isHard()) {
         mc_critical(ExecAlarm::HardLimit);
     }
-    log_debug("Limit switch tripped for " << config->_axes->axisName(limit->_axis) << " motor " << limit->_motorNum);
+    log_error("Limit switch tripped for " << config->_axes->axisName(limit->_axis) << " motor " << limit->_motorNum);
 }
 static void protocol_do_fault_pin(void* arg) {
     InputFile::_progress = "";

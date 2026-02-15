@@ -158,6 +158,9 @@ void OLED::show_file() {
     if (_state != "Run" && pct == 100) {
         // This handles the case where the system returns to idle
         // but shows one last SD report
+        auto fh = font_height(ArialMT_Plain_16);
+        wrapped_draw_string(fh, _radio_info, ArialMT_Plain_16);
+        wrapped_draw_string(fh * 2, _radio_addr, ArialMT_Plain_16);
         return;
     }
     if (_width == 128) {
@@ -314,10 +317,16 @@ void OLED::parse_status_report() {
         pos        = nextpos + 1;
         nextpos    = _report.find_first_of("|", pos);
         auto field = _report.substr(pos, nextpos - pos);
-        // MPos:, WPos:, Bf:, Ln:, FS:, Pn:, WCO:, Ov:, A:, SD: (ISRs:, Heap:)
+        // Al:, MPos:, WPos:, Bf:, Ln:, FS:, Pn:, WCO:, Ov:, A:, SD: (ISRs:, Heap:)
         auto colon = field.find_first_of(":");
         auto tag   = field.substr(0, colon);
         auto value = field.substr(colon + 1);
+        if (tag == "Al") {
+            // Последняя ошибка = поиск домашней точки
+            if (strcmp(value.c_str(), "14") == 0) {
+                _stateRus = "База";
+            }
+        }
         if (tag == "MPos") {
             // x,y,z,...
             parse_axes(value, axes);
