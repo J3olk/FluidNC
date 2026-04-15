@@ -117,7 +117,7 @@ void OLED::init() {
 
     _oled->clear();
 
-    show((_width == 128) ? bannerLayout128 : bannerLayout64, "МГФН-02");
+    show((_width == 128) ? bannerLayout128 : bannerLayout64, "МГФН 2.0");
 
     _oled->display();
 
